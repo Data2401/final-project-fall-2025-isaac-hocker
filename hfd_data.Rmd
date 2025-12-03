@@ -1,0 +1,117 @@
+---
+title: "hfd_project"
+author: "Isaac Hocker"
+date: "2025-11-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+library(tidyverse)
+library(lubridate)
+# Load the data set
+hfd <- read.csv("new_hfd_data.csv")
+# View structure of the data set
+glimpse(hfd)
+```
+
+## Introduction
+This report analyzes real incident data from Houston Fire Department.
+We explore trends over time, types of incidents, and identify patterns that may help with resource planning and risk prevention.
+
+### Emt events
+```{r}
+ggplot(hfd, aes(x = Station, y = EMS.Events)) +
+ geom_col(fill = "steelblue") +
+  geom_text(aes(label = Station),
+            vjust = -0.3,
+            size = 3,
+            color = "black") +
+  labs(
+    title = "EMS Events by Station",
+    x = "Station Number",
+    y = "EMS Events"
+  ) +
+  theme_minimal()
+  
+# This plot shows how many EMS events happen at each station
+# Notes:
+# we can see that there a good amount of stations that are busy with emt calls and not 
+# This graph shows events 
+```
+
+#### Fire events by station
+```{r}
+ggplot(hfd, aes(x = Station, y = Fire.Events)) +
+  geom_col(fill = "firebrick") +
+  geom_text(
+    aes(label = Station),
+    vjust = -0.3,
+    size = 3,
+    angle = 90,
+    check_overlap = TRUE # helps with spacing
+  ) +
+  labs(
+    title = "Fire Events by Station",
+    x = "Station Number",
+    y = "Number of Fire Events"
+  ) +
+  theme_minimal()
+# Notes:
+# This graph shows how many fire related incidents each station handled.
+# Higher bars indicate stations with heavier fire response activity.
+# This helps identify which areas of Houston experience more frequent fire incidents.
+```
+
+##### EMS Events vs Fire Events
+```{r}
+ggplot(hfd, aes(x = EMS.Events, y = Fire.Events, label = Station)) +
+  geom_point(color = "darkorange", size = 4) +
+  geom_text(vjust = -0.5, size = 4, color = "black") +
+  scale_x_continuous(expand = c(0.05, 0.05)) +
+  scale_y_continuous(expand = c(0.05, 0.05)) +
+  labs(
+    title = "EMS Events vs Fire Events by Station",
+  ) +
+  theme_minimal(base_size = 14)
+# Each point represents one fire station
+# This plot shows whether stations with more EMS calls also tend to have more fire calls
+# If the points form an upward trend it means stations with high EMS demand often also experience higher fire activity 
+# also went back to scale the graph to zoom in on the station numbers
+```
+###### EMS Responses vs Fire Responses
+```{r}
+ggplot(hfd, aes(x = EMS.Responses, y = Fire.Responses, label = Station)) +
+  geom_point(color = "purple", size = 3) +
+  geom_text(vjust = -0.5, size = 3) +
+  labs(
+    title = "EMS Responses vs Fire Responses",
+    x = "EMS Responses",
+    y = "Fire Responses"
+  ) +
+  theme_minimal()
+# Notes:
+# For the ems vs fire responses we can see that there are way more ems incidents, but also we can see that there are certain stations with high fire response
+# we also see that there are stations that get more ems responses than fire.
+# If a point is going upward it shows that station has more fire responses than some of the others that go more towards the right of the graph.
+```
+
+###### Key Findings
+
+- EMS and Fire activity are not evenly distributed across stations. Some stations handle much higher call volumes. 
+- Stations with higher EMS events often also have higher fire events, suggesting certain areas have generally higher emergency demand.
+- The relationship between EMS responses and fire responses indicates that resource needs may be similar across certain high demand stations.
+
+####### Limitations
+- The data set reflects only time period and may not represent long term trends.
+- The data is aggregated by station and event type, so it does not include detail call level information.
+
+######## Tools used
+- Packages I used: tidyverse for data manipulation and plotting, and lubricate for working with dates
+- Created bar charts to compare Ems and fire events by station
+- created scatter plots to explore relationships between EMS and fire
+######### What i learned
+- This data gives an insight on how busy or how slow some stations are
+_ Which stations also show which area or district there are located where it gives us hints that the area they are in is safer, or dangerous.

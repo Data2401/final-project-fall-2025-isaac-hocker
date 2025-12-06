@@ -1,0 +1,253 @@
+---
+title: "hfd_project"
+author: "Isaac Hocker"
+date: "2025-11-21"
+output: html_document
+---
+
+# Tools used
+
+- library(tidyverse) # for data cleaning(filtering, mutate, arrange) and plots (ggplot)
+- library(lubridate) # for working with dates if needed in the data sets
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+library(tidyverse) # for data cleaning(filtering, mutate, arrange) and plots (ggplot)
+library(lubridate) # for working with dates if needed in the data sets
+# Load the data set
+hfd <- read.csv("new_hfd_data.csv")
+# View structure of the data set
+glimpse(hfd)
+```
+
+## Data
+
+The data comes from the Houston Fire Department incident data set (it is used in this assignment as ' new_hfd_data.csv`). It summarizes the number of EMS events, fire events and total response for each station in 2023.
+
+In the code I imported the data with `read.csv("new_hfd_data.csv")
+
+Below is a short list of variables that i used.
+- `Station`: station numbers for each location
+- `EMS.Events` : number of EMS events at the station
+- `Fire.Events` : number of fire events at the station
+
+- `Total.Events` : EMS & fire events
+
+```{r}
+hfd %>%
+  select(Station, EMS.Events, Fire.Events, Total.Events) %>%
+  head(20)
+```
+
+### Introduction
+The data set includes information on EMS events, fire events, and response totals for each station. This allows us to compare activity levels and understand which stations handle the highest workloads. Understanding how emergency calls are distributed across stations can help identify which areas of Houston have higher demand. The purpose of this project is to visualize the data in a way that makes it easier to interpret patterns, compare stations, and understand how EMS and fire activity relate to each other.
+
+Real world relevance:  This type of analysis is important because emergency call volume affects response times, crew workload, and community safety. Identifying which stations are the busiest can improve emergency service operations.
+
+#### Problem 
+In this report I try to answer: which Houston Fire Department stations are the busiest, and how do EMS and fire events relate to each other? 
+The reason this is important is because for so many years Houston fire department has always had staffing issues not having enough fire fighters for the city. The main reason is due to a salary raise that HFD was trying to fight for many years. Not until recently did they approve of which was last year and now that the salary has also increased more and more people are willingly to apply to become a firefighter. So my data is show how busy the stations are throughout Houston to help with placing more firefighters depending on which station is needed, also for better equipment based on the volume of calls each station gets.
+
+To address this problem, I analyzed station level data on EMS and fire events and created visualizations that compare call volumes across all stations. By filtering the data, ranking stations, and using bar charts and scatter plots, I was able to identify which stations are the busiest and slowest. 
+
+##### Emt events
+```{r}
+hfd %>%
+  filter(!is.na(EMS.Events), EMS.Events > 0) %>%  # remove stations with no incidents
+  mutate(Station = factor(Station)) %>%  #  make stations discrete that do not have activity
+  ggplot(aes(x = Station, y = EMS.Events)) +
+  geom_col(fill = "blue") +
+  geom_text(aes(label = Station),
+            vjust = -0.3,
+            size = 3,
+            color = "black") +
+  labs(
+    title = "EMS Events by Station",
+    x = "Station Number",
+    y = "EMS Events"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_blank(),  # remove number on the x axis
+    axis.ticks.x = element_blank(),  # remove tick marks
+    plot.title = element_text(size = 16, face = "bold")
+  )
+
+  
+# This plot shows how many EMS events happen at each station
+# Notes:
+# we can see that there a good amount of stations that are busy with EMT calls and not 
+# This graph shows events based off the year of 2023
+# I used mutate to clean up the graph where it would eliminate the empty stations that do not exist.
+# I used filter(!is.na(EMS.Events), EMS.Events > 0) to remove stations with no EMS activity and that do not add any meaningful information because we don't have those fire stations where it has no data also those stations did not exist in 2023
+```
+
+- The chart shows how many EMS events each station handled during the time period. The taller bars represent stations that responded to a higher number of medical emergencies. Labeling each bar with its station number makes it easier to identify which are the busiest. This data is important because it highlights which areas have the highest medical emergency demand. EMS calls can range from life threatening situations such as cardiac arrest, difficulty breathing, strokes to less severe complaints that still require evaluation. Stations with high ems activity may need additional resources.
+
+###### Fire events by station
+```{r}
+hfd %>%
+  filter(Fire.Events > 0) %>%     # Here i removed stations with zero events 
+  mutate(Station = factor(Station)) %>%
+  ggplot(aes(x = Station, y = Fire.Events)) +
+  geom_col(fill = "darkred") +
+  geom_text(
+    aes(label = Station),
+    vjust = -0.3,
+    size = 3,
+    color = "black"
+  ) +
+  labs(
+    title = "Fire Events by Station",
+    x = "Station Number",
+    y = "Number of Fire Events"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_blank(),  # remove x axis numbers
+    axis.ticks.x = element_blank(), # remove ticks
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+# Notes:
+# This graph shows how many fire related incidents each station handled.
+# Higher bars indicate stations with heavier fire response activity.
+# This helps identify which areas of Houston experience more frequent fire incidents.
+# I removed the x axis ticks and the title and axis text sizes to make the chart cleaner and easier to read. 
+# for the text size i kept messing with the numbers until it looked readable.
+```
+
+- The graph is important because it helps identify which stations that deal with the highest amount of fire activity. Knowing which stations are busier can help with planning resources, scheduling, and making sure those areas have enough support. Also shows where more fire related incidents happen compared to other areas. This could be due to population density, older buildings, commercial areas, and neighborhoods with higher risk factors.
+
+####### EMS Events vs Fire Events
+```{r}
+hfd %>%
+  filter(EMS.Events > 0, Fire.Events > 0) %>% #  I dropped stations that had no activity.
+  ggplot(aes(x = EMS.Events, y = Fire.Events, label = Station)) +
+  geom_point(color = "darkorange", size = 3) + # slightly smaller points
+  geom_text(
+    vjust = -0.6,
+    size = 3,
+    color = "black"
+  ) +
+  labs(
+    title = "EMS Events vs Fire Events by Station",
+    x = "Numbers of  EMS Events",
+    y = "Number of Fire Events"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    axis.title = element_text(face = "bold")
+  )
+# Each point represents one fire station
+# This plot shows whether stations with more EMS calls also tend to have more fire calls
+# If the points form an upward trend it means stations with high EMS demand often also experience higher fire activity 
+# also went back to scale the graph to zoom in on the station numbers
+```
+
+- This graph shows how the relationship between two types of emergency activity. Seeing how these events move together helps identify stations that face heavier workloads and may require additional support or staffing. In real emergency operations, strong relationship between both EMS and fire can show where populations are larger, where traffic is heavier, or where environmental risks are higher. Understanding this helps with planning and resource placement,
+
+######## EMS Top 10  Busiest Stations for EMS
+```{r}
+hfd %>%
+  arrange(desc(EMS.Events)) %>%
+  slice(1:10) %>%
+  mutate(Station = factor(Station, levels = Station)) %>%
+  ggplot(aes(x = Station, y = EMS.Events)) +
+  geom_col(fill = "purple") +
+  labs(title = "Top 10 Stations by EMS Events") +
+  theme_minimal()
+ 
+# Notes:
+# This graph I pulled the data of the top 10 stations who has the most ems calls compared to other stations
+# Used arrange desc to sort out stations from highest to lowest
+```
+
+-This graph above shows out of the numerous Houston stations we have I pulled the top 10 busiest stations with the highest ems calls.
+The reason this is so important is so we can see which areas are the busiest and also what can the city of Houston do to help those stations dealing with such high volumes.
+
+
+######### Top 10 stations ith busiest fires
+```{r}
+hfd %>%
+  arrange(desc(Fire.Events)) %>%   # sorting stations
+  slice(1:10) %>% # keeping 1 through 10
+  mutate(Station = factor(Station,
+                          levels = Station)) %>% # keep the bars in order
+  ggplot(aes(x = Station, y = Fire.Events)) +
+  geom_col(fill = "darkred") +
+  labs(
+    title = "Top 10 Stations by Fire Events",
+    x = "Station Number",
+    y = "Number of Fire Events"
+  ) +
+  theme_minimal(base_size  = 14) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, size = 9),
+    plot.title = element_text(face = "bold", hjust = 0.5)
+  )
+# I used slice(1:10) so the graph would focus only on the busiest stations in of all of them in Houston
+# I converted the station numbers into a factor with the same order as the sorted data so that the bars would appear in the correct ranking. without it they would be numerically instead of based on call.
+```
+
+- In real emergency operations, stations with heavy fire call volume face more stress on personnel, equipment, and response times. Identifying these stations helps the department better manage workloads and prepare for peak times. High fire activity can also indicate areas where prevention programs or building inspections could reduce risk.
+
+########## Slowest stations based on EMS calls
+```{r}
+hfd %>%
+  arrange(EMS.Events) %>%
+  slice(1:10) %>%
+  mutate(Station = factor(Station, levels = Station)) %>%
+  ggplot(aes(x = Station, y = EMS.Events)) +
+  geom_col(fill = "green") +
+  labs(
+    title = "Top 10 Slowest Stations (EMS Events)",
+    x = "Station Number",
+    y = "EMS Events"
+  ) +
+  theme_minimal()
+```
+
+- For this graph instead of focusing on the busiest stations I wanted to focus on the top slowest stations for EMS calls.
+- This data will help determine if we need to put less resources in these stations to focus more on the busiest.
+
+########### Slowest stations based on fire calls
+```{r}
+hfd %>%
+  arrange(Fire.Events) %>%
+  slice(1:10) %>%
+  mutate(Station = factor(Station, levels = Station)) %>%
+  ggplot(aes(x = Station, y = Fire.Events)) +
+  geom_col(fill = "red") +
+  labs(
+    title = "Top 10 slowest Stations (Fire Events)",
+    x = "Station Number",
+    y = "Fire Events"
+  ) +
+  theme_minimal()
+```
+
+- For this data I pulled the slowest stations based off the call volumes as well for fire calls and as we can see that the stations that are the slowest for EMS is typically the slowest for Fire rescue as well.
+
+
+############ Key Findings
+
+- EMS and Fire activity are not evenly distributed across stations. Some stations handle much higher call volumes. 
+- Stations with higher EMS events often also have higher fire events, suggesting certain areas have generally higher emergency demand.
+- The relationship between EMS responses and fire responses indicates that resource needs may be similar across certain high demand stations.
+
+############# Limitations
+- The data set reflects only time period and may not represent long term trends.
+- The data is aggregated by station and event type, so it does not include detail call level information.
+- The data did not show a longitude or latitude which would've showed a more precise location of where each incident happens across Houston.
+- The data also does not specify what type of calls were made specifically but based on two categories which fell into EMS or fire rescue.
+
+############## What i learned
+- This data gives an insight on how busy or how slow some stations are
+- Which stations also show which area or district there are located where it gives us hints that the area they are in is safer, or dangerous.
+
+############### Conclusion
+- This analysis of Houston Fire Department Incident data highlights a big difference in EMS and fire emergencies across stations. Several stations consistently reported higher call volumes, suggesting concentrated emergency demand in those areas. Understanding these patterns is useful for operational planning, risk assessment, and also where to put the resources. While the data does not include detailed call types or precise geographic information, it still provides valuable insight into overall workload distribution.

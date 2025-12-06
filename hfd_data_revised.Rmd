@@ -59,18 +59,10 @@ hfd %>%
   mutate(Station = factor(Station)) %>%  #  make stations discrete that do not have activity
   ggplot(aes(x = Station, y = EMS.Events)) +
   geom_col(fill = "blue") +
-  geom_text(aes(label = Station),
-            vjust = -0.3,
-            size = 3,
-            color = "black") +
-  labs(
-    title = "EMS Events by Station",
-    x = "Station Number",
-    y = "EMS Events"
-  ) +
+  geom_text(aes(label = Station), vjust = -0.3, size = 3, color = "black") +
+  labs(title = "EMS Events by Station", x = "Station Number", y = "EMS Events") +
   theme_minimal() +
-  theme(
-    axis.text.x = element_blank(),  # remove number on the x axis
+  theme(axis.text.x = element_blank(),  # remove number on the x axis
     axis.ticks.x = element_blank(),  # remove tick marks
     plot.title = element_text(size = 16, face = "bold")
   )
@@ -93,20 +85,10 @@ hfd %>%
   mutate(Station = factor(Station)) %>%
   ggplot(aes(x = Station, y = Fire.Events)) +
   geom_col(fill = "darkred") +
-  geom_text(
-    aes(label = Station),
-    vjust = -0.3,
-    size = 3,
-    color = "black"
-  ) +
-  labs(
-    title = "Fire Events by Station",
-    x = "Station Number",
-    y = "Number of Fire Events"
-  ) +
+  geom_text(aes(label = Station), vjust = -0.3, size = 3, color = "black") +
+  labs(title = "Fire Events by Station", x = "Station Number", y = "Number of Fire Events") +
   theme_minimal() +
-  theme(
-    axis.text.x = element_blank(),  # remove x axis numbers
+  theme(axis.text.x = element_blank(),  # remove x axis numbers
     axis.ticks.x = element_blank(), # remove ticks
     plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
     axis.title = element_text(size = 12, face = "bold")
@@ -127,19 +109,11 @@ hfd %>%
   filter(EMS.Events > 0, Fire.Events > 0) %>% #  I dropped stations that had no activity.
   ggplot(aes(x = EMS.Events, y = Fire.Events, label = Station)) +
   geom_point(color = "darkorange", size = 3) + # slightly smaller points
-  geom_text(
-    vjust = -0.6,
-    size = 3,
-    color = "black"
-  ) +
-  labs(
-    title = "EMS Events vs Fire Events by Station",
-    x = "Numbers of  EMS Events",
-    y = "Number of Fire Events"
-  ) +
+  geom_text(vjust = -0.6,size = 3,color = "black") +
+  labs(title = "EMS Events vs Fire Events by Station",x = "Numbers of  EMS Events",
+       y = "Number of Fire Events") +
   theme_minimal(base_size = 14) +
-  theme(
-    plot.title = element_text(face = "bold", hjust = 0.5),
+  theme(plot.title = element_text(face = "bold", hjust = 0.5),
     axis.title = element_text(face = "bold")
   )
 # Each point represents one fire station
@@ -175,19 +149,13 @@ The reason this is so important is so we can see which areas are the busiest and
 hfd %>%
   arrange(desc(Fire.Events)) %>%   # sorting stations
   slice(1:10) %>% # keeping 1 through 10
-  mutate(Station = factor(Station,
-                          levels = Station)) %>% # keep the bars in order
+  mutate(Station = factor(Station,levels = Station)) %>% # keep the bars in order
   ggplot(aes(x = Station, y = Fire.Events)) +
   geom_col(fill = "darkred") +
-  labs(
-    title = "Top 10 Stations by Fire Events",
-    x = "Station Number",
-    y = "Number of Fire Events"
-  ) +
+  labs(title = "Top 10 Stations by Fire Events", x = "Station Number", y = "Number of Fire Events") +
   theme_minimal(base_size  = 14) +
-  theme(
-    axis.text.x = element_text(angle = 90, vjust = 0.5, size = 9),
-    plot.title = element_text(face = "bold", hjust = 0.5)
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 9),
+        plot.title = element_text(face = "bold", hjust = 0.5)
   )
 # I used slice(1:10) so the graph would focus only on the busiest stations in of all of them in Houston
 # I converted the station numbers into a factor with the same order as the sorted data so that the bars would appear in the correct ranking. without it they would be numerically instead of based on call.
@@ -203,11 +171,7 @@ hfd %>%
   mutate(Station = factor(Station, levels = Station)) %>%
   ggplot(aes(x = Station, y = EMS.Events)) +
   geom_col(fill = "green") +
-  labs(
-    title = "Top 10 Slowest Stations (EMS Events)",
-    x = "Station Number",
-    y = "EMS Events"
-  ) +
+  labs(title = "Top 10 Slowest Stations (EMS Events)", x = "Station Number", y = "EMS Events") +
   theme_minimal()
 ```
 
@@ -222,11 +186,7 @@ hfd %>%
   mutate(Station = factor(Station, levels = Station)) %>%
   ggplot(aes(x = Station, y = Fire.Events)) +
   geom_col(fill = "red") +
-  labs(
-    title = "Top 10 slowest Stations (Fire Events)",
-    x = "Station Number",
-    y = "Fire Events"
-  ) +
+  labs(title = "Top 10 slowest Stations (Fire Events)", x = "Station Number", y = "Fire Events") +
   theme_minimal()
 ```
 
